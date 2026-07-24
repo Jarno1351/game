@@ -17,8 +17,18 @@ html, body {
   min-height: 100dvh;
   overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #55a1f3;
+  background: linear-gradient(180deg, #081320 0%, #0F172A 100%);
   color: #0d0909;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+body {
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
 }
 
 /* ============================================
@@ -49,24 +59,39 @@ html, body {
   50% { transform: rotate(90deg); }
 }
 
-@media screen and (orientation: portrait) and (max-width: 768px) {
-  #rotate-prompt {
-    display: flex !important;
-  }
-  body > *:not(#rotate-prompt) {
-    display: none !important;
-  }
-}
+@media (hover: none) and (pointer: coarse) and (orientation: portrait) {
+    #rotate-prompt {
+        display: flex !important;
+    }
 
+    body > *:not(#rotate-prompt) {
+        display: none !important;
+    }
+}
+.story-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 12px;
+    width: 100%;
+    flex-shrink:0;
+}
 /* ============================================
    MAIN GAME CONTAINER - Full screen
    ============================================ */
 #game-container {
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
   width: 100vw;
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
+  background: linear-gradient(180deg, #07121F, #10213A);
 }
 
 /* ============================================
@@ -80,6 +105,10 @@ html, body {
   left: 0;
   width: 100%;
   height: 100%;
+}
+
+#scene-viewport {
+  background: linear-gradient(180deg, #07121F, #10213A) !important;
 }
 
 #game-scene-art,
@@ -221,9 +250,15 @@ html, body {
     rgba(20, 40, 70, 0.40) 55%, 
     transparent 100%
   );
-  max-height: 45vh;
-  overflow-y: auto;
+  max-height:calc(100vh - 270px);
+  min-height:100px;
+  overflow-y:auto;
+  padding-bottom:16px;
   pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction:column;
 }
 
 #story-text {
@@ -262,13 +297,13 @@ html, body {
    ACTION PANEL - Bottom center
    ============================================ */
 #action-panel {
-  position: absolute;
-  bottom: 20px;
-  left: 0;
-  right: 0;
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:max(16px, env(safe-area-inset-bottom));
+  padding:0 20px;
   display: flex;
   justify-content: center;
-  padding: 0 20px;
   z-index: 60;
   pointer-events: none;
 }
@@ -447,29 +482,8 @@ html, body {
 /* ============================================
    VOICE STATUS INDICATOR
    ============================================ */
-#voice-status-indicator {
-  position: fixed;
-  top: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 200;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  display: none;
-}
-
-#voice-status-indicator.locked {
-  background: rgba(239, 68, 68, 0.8);
-  color: #fff;
-}
-
-#voice-status-indicator.unlocked {
-  background: rgba(34, 197, 94, 0.8);
-  color: #fff;
+#voice-status-indicator{
+    display:none !important;
 }
 
 /* ============================================
@@ -914,4 +928,28 @@ html, body {
 .table-scroll-wrap::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.2);
   border-radius: 3px;
+}
+
+@media (max-height:700px){
+
+    #story-container{
+
+        max-height:calc(100vh - 220px);
+
+    }
+
+    #story-text{
+
+        font-size:1rem;
+        flex:1;
+        line-height:1.5;
+
+    }
+
+    .choice-btn{
+
+        padding:12px 18px;
+
+    }
+
 }

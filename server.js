@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const PORT = 5501;
+const PORT = 5502;
 
 // Get all local IP addresses
 function getLocalIPs() {

@@ -101,17 +101,16 @@ class VoiceOverManager {
     }
 
     updateVoiceStatusUI() {
-        const indicator = document.getElementById('voice-status-indicator');
+        const indicator = document.getElementById("voice-status-indicator");
         if (!indicator) return;
         
         indicator.classList.remove('locked', 'speaking', 'active');
-        
         if (!this.isEnabled) {
             indicator.style.display = 'none';
             return;
         }
         
-        indicator.style.display = 'block';
+        indicator.style.display = 'none';
         indicator.classList.add('active');
         
         if (this.isSpeaking) {
@@ -324,18 +323,35 @@ function addReadStoryButton() {
     btn.id = 'read-story-fallback-btn';
     btn.innerHTML = '🔊 Read';
     btn.style.cssText = `
-        position: absolute; right: 10px; top: 10px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white; border: none; border-radius: 20px;
-        padding: 8px 16px; font-size: 12px; font-weight: bold;
-        cursor: pointer; z-index: 100;
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+        padding:8px 14px;
+        border:none;
+        border-radius:20px;
+        cursor:pointer;
+        font-size:12px;
+        font-weight:bold;
+        background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+        color:white;
     `;
     btn.onclick = () => {
         voiceOver.userInteracted = true;
         voiceOver.updateVoiceStatusUI();
         voiceOver.readAgain();
     };
-    storyContainer.appendChild(btn);
+    let toolbar = storyContainer.querySelector(".story-toolbar");
+
+    if (!toolbar) {
+        toolbar = document.createElement("div");
+        toolbar.className = "story-toolbar";
+
+        // Place it at the very top of the story container
+        storyContainer.prepend(toolbar);
+    }
+
+    // Put the Read button inside the toolbar
+    toolbar.appendChild(btn);
 }
 
 function setupTextHooks() {

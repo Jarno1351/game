@@ -1,27 +1,44 @@
 // ============================================
 // LANDSCAPE ORIENTATION LOCK
 // ============================================
+function isMobileDevice() {
+    return window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+}
 
 function lockLandscape() {
-  // Method 1: Screen Orientation API (modern browsers)
-  if (screen.orientation && screen.orientation.lock) {
-    screen.orientation.lock('landscape').catch((err) => {
-      console.log('Orientation lock not supported:', err);
-    });
-  }
-  
-  // Method 2: iOS fallback
-  if (window.orientation !== undefined) {
-    window.addEventListener('orientationchange', () => {
-      if (window.orientation === 0 || window.orientation === 180) {
-        // Portrait detected - show rotate prompt
-        showRotatePrompt();
-      } else {
+
+    if (!isMobileDevice()) {
         hideRotatePrompt();
-      }
-    });
-  }
+        return;
+    }
+
+    if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock("landscape").catch(() => {});
+    }
+
+    function updateOrientationUI() {
+
+        if (!isMobileDevice()) {
+            hideRotatePrompt();
+            return;
+        }
+
+        const isPortrait =
+            window.matchMedia("(orientation: portrait)").matches;
+
+        if (isPortrait) {
+            showRotatePrompt();
+        } else {
+            hideRotatePrompt();
+        }
+    }
+
+    updateOrientationUI();
+
+    window.addEventListener("orientationchange", updateOrientationUI);
+    window.addEventListener("resize", updateOrientationUI);
 }
+
 
 function showRotatePrompt() {
   let prompt = document.getElementById('rotate-prompt');
@@ -50,17 +67,31 @@ function hideRotatePrompt() {
   if (prompt) prompt.style.display = 'none';
 }
 
-// Lock on load and when game starts
+// Lock on load and re-attempt on visibility changes and user interaction
 document.addEventListener('DOMContentLoaded', () => {
-  lockLandscape();
-  // Also re-lock when user interacts (some browsers require user gesture)
-  document.addEventListener('click', () => {
-    lockLandscape();
-  }, { once: true });
+  console.log('UI: DOMContentLoaded fired');
+  lockLandscape();                     // initial attempt (may need user gesture)
+});
+
+// Re-attempt lock on any user interaction (touch, click, key press)
+// Most mobile browsers require a gesture to unlock orientation.
+['click', 'touchstart', 'keydown'].forEach(evt => {
+  window.addEventListener(evt, lockLandscape, { passive: true });
+});
+
+// When the page becomes visible again (e.g., returning from app switcher)
+// try to lock again – some browsers lose the lock when hidden.
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) lockLandscape();
+});
+
+// Also listen for pageshow (covers back-button navigation etc.)
+window.addEventListener('pageshow', (event) => {
+  if (event.persisted) lockLandscape();
 });
 // data/ui.js
-const DIALOGUE_TYPING_SPEED = 18; 
-const ENABLE_DIALOGUE_ANIMATION = true; 
+const DIALOGUE_TYPING_SPEED = 18;
+const ENABLE_DIALOGUE_ANIMATION = false; 
 
 let dialogueAnimationTracker = {
     timerId: null,
@@ -71,8 +102,10 @@ let dialogueAnimationTracker = {
 };
 
 function updateUI() {
+    console.log('UI: Simplified updateUI called');
     const currentNode = storyData[gameState.currentId];
     if (!currentNode) return;
+
 
     const artImage = document.getElementById("game-scene-art");
     const placeholder = document.getElementById("art-placeholder");
@@ -93,7 +126,18 @@ function updateUI() {
 
     document.getElementById("chapter-title").innerText = currentNode.title;
     document.getElementById("star-count").innerText = gameState.score;
-    document.getElementById("story-text").innerText = currentNode.text;
+    try {
+        const storyTextEl = document.getElementById("story-text");
+        console.log('UI: Found story-text element:', storyTextEl);
+        if (storyTextEl) {
+            storyTextEl.innerText = "TEST TEXT FROM TRY/CATCH";
+            console.log('UI: Set story-text to:', storyTextEl.innerText);
+        } else {
+            console.log('UI: story-text element is null!');
+        }
+    } catch (e) {
+        console.log('UI: Error setting story-text:', e);
+    }
 
     const targetStoryTextEl = document.getElementById("story-text");
     const choicesContainer = document.getElementById("choices-container");
@@ -178,9 +222,12 @@ function updateUI() {
 
 
     if (ENABLE_DIALOGUE_ANIMATION && (currentNode.type === "story" || currentNode.type === "choice" || currentNode.type === "minigame" || currentNode.type === "task")) {
+        console.log('UI: If branch, starting typewriter for text:', currentNode.text);
         triggerDialogueTypewriter(targetStoryTextEl, currentNode.text, postRevealAction);
     } else {
+        console.log('UI: Else branch, setting story-text to:', "ELSE_BRANCH_TEST");
         targetStoryTextEl.innerText = currentNode.text;
+        console.log('UI: After setting, element text is:', targetStoryTextEl.innerText);
         postRevealAction();
     }
 }
@@ -771,3 +818,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // when window.innerWidth <= 768 (responsive/device emulation).
     // (The base positionStoryContainer() remains in effect.)
 });  // <-- THIS CLOSES THE DOMContentLoaded EVENT LISTENER
+window.onerror = function(message, source, lineno, colno, error) {
+  console.error('Global error:', {
+    message,
+    source,
+    line: lineno,
+    col: colno,
+    error: error
+  });
+  return false;
+};

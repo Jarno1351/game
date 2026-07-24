@@ -258,8 +258,9 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("modal-close-btn").addEventListener("click", () => {
         document.getElementById("feedback-modal").classList.add("hidden");
     });
-    
+
     document.getElementById("submit-grid-btn").onclick = () => {
         submitPackChallenge();
     };
 });
+
