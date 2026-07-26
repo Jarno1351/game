@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 236 76" width="236" height="76">
+  <!-- Main Bag Body -->
+  <rect x="4" y="4" width="228" height="68" rx="16" fill="#D2A679" stroke="#3E2723" stroke-width="4"/>
+  <!-- Fabric Folds -->
+  <path d="M 20 20 Q 118 28 216 20" fill="none" stroke="#B08259" stroke-width="3" stroke-linecap="round"/>
+  <path d="M 20 56 Q 118 48 216 56" fill="none" stroke="#B08259" stroke-width="3" stroke-linecap="round"/>
+  <!-- Reinforcement Straps (1x3 Identifier) -->
+  <rect x="76" y="4" width="10" height="68" fill="#5D4037"/>
+  <rect x="150" y="4" width="10" height="68" fill="#5D4037"/>
+  <rect x="8" y="8" width="220" height="60" rx="12" fill="none" stroke="#8D5B4C" stroke-width="2" stroke-dasharray="4 4"/>
+</svg>

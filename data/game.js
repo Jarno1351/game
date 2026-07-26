@@ -36,7 +36,8 @@ let gameState = {
     hazardTries: 0,
     helpedLeo: false,
     ignoredLeo: false,
-    madeEvacMistake: false
+    madeEvacMistake: false,
+    barricadeTimer: null 
 };
 
 window.addEventListener("DOMContentLoaded", async () => {
@@ -87,6 +88,8 @@ function initGame(skipToStory = false) {
     gameState.helpedLeo = false;
     gameState.ignoredLeo = false;
     gameState.madeEvacMistake = false;
+    if (gameState.barricadeTimer) clearInterval(gameState.barricadeTimer);
+    gameState.barricadeTimer = null;
     
     const slots = document.querySelectorAll(".badge-slot");
     slots.forEach(slot => {
@@ -279,6 +282,60 @@ function unlockBadge(domId, badgeName) {
             slot.setAttribute("title", badgeName);
         }
     }
+}
+function startBarricadeChallenge(node) {
+    let timeLeft = node.timeLimitSeconds || 31000;
+    const timerText = document.getElementById('barricade-timer-text');
+    if (timerText) timerText.innerText = `${timeLeft}s`;
+
+    // Clear any existing timer just in case
+    if (gameState.barricadeTimer) {
+        clearInterval(gameState.barricadeTimer);
+    }
+
+    // Start the 30-second countdown
+    gameState.barricadeTimer = setInterval(() => {
+        timeLeft--;
+        if (timerText) timerText.innerText = `${timeLeft}s`;
+
+        // When time runs out (LOSE CONDITION)
+        if (timeLeft <= 0) {
+            clearInterval(gameState.barricadeTimer);
+            gameState.barricadeTimer = null;
+            hideBarricadePuzzle();
+            
+            AudioManager.playSFX('modal_negative');
+            showFeedbackModal("Time's Up!", "The floodwaters rushed in before you could secure the door! Always act quickly when flooding begins.", false);
+            
+            gameState.currentId = node.failureNextId || "bad_ending_summary";
+            updateUI();
+        }
+    }, 1000);
+
+    // Launch the visual puzzle in ui.js
+    showBarricadePuzzle(
+        node,
+        () => { 
+            // ON WIN CALLBACK
+            clearInterval(gameState.barricadeTimer);
+            gameState.barricadeTimer = null;
+            
+            AudioManager.playSFX('modal_positive');
+            if (node.scoreModifier) gameState.score += node.scoreModifier;
+            
+            showFeedbackModal("Door Secured!", "You stacked all the sandbags just in time! The basement is protected from the rising waters.", true);
+            
+            gameState.currentId = node.nextId;
+            updateUI();
+        },
+        () => { 
+            // ON LOSE CALLBACK
+            clearInterval(gameState.barricadeTimer);
+            gameState.barricadeTimer = null;
+            gameState.currentId = node.failureNextId || "bad_ending_summary";
+            updateUI();
+        }
+    );
 }
 
 document.addEventListener("DOMContentLoaded", () => {

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 156 156" width="156" height="156">
+  <!-- L-Shape Compound Path -->
+  <path d="M 16 4 
+           H 140 A 12 12 0 0 1 152 16 
+           V 64 A 12 12 0 0 1 140 76 
+           H 92 A 12 12 0 0 0 80 88 
+           V 140 A 12 12 0 0 1 68 152 
+           H 16 A 12 12 0 0 1 4 140 
+           V 16 A 12 12 0 0 1 16 4 Z" 
+        fill="#D2A679" stroke="#3E2723" stroke-width="4"/>
+  <!-- Inner Stitching Line -->
+  <path d="M 20 12 H 132 V 68 H 84 V 136 H 12 V 20 Z" fill="none" stroke="#8D5B4C" stroke-width="2" stroke-dasharray="4 4"/>
+</svg>

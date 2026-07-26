@@ -34,7 +34,7 @@
             <p id="loading-progress-text">0%</p>
         </div>
     </div>
-    
+
     <!-- ROTATION PROMPT -->
     <div id="rotate-prompt">
       <div class="rotate-icon">📱</div>
@@ -85,10 +85,23 @@
                 <div id="items-grid"></div>
                 <button id="submit-grid-btn" class="choice-btn header-aligned-btn" disabled>✅ Submit</button>
             </div>
+
+            <div id="barricade-tray-container" class="hidden">
+                <div id="barricade-meta" style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:8px;">
+                    <span class="grid-instructions">⏳ Time: <span id="barricade-timer-text" style="color: #ff9f43; font-weight:bold;">30s</span> | Stack all sandbags!</span>
+                    <button id="btn-barricade-reset" class="choice-btn header-aligned-btn" style="margin:0; padding: 4px 10px; font-size: 0.85rem;">🔄 Reset</button>
+                </div>
+                <div id="sandbag-supply-tray" class="items-grid" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center;"></div>
+            </div>
         </div>
 
         <div id="hazard-interactive-layer" class="hidden"></div>
 
+        <div id="barricade-interactive-layer" class="hidden">
+                    <div id="barricade-grid" class="barricade-grid">
+                        <!-- JavaScript will inject the 15 door cells here -->
+                    </div>
+                </div>
     </div>
 
     <!-- MAIN MENU OVERLAY -->
@@ -170,11 +183,11 @@
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js')
-            .then(r => console.log('✅ SW registered:', r.scope))
-            .catch(e => console.log('❌ SW failed:', e));
+        navigator.serviceWorker.register('./service-worker.js').catch(err => {
+            console.error('Service Worker registration failed:', err);
         });
-      }
+        });
+    }
     </script>
 </body>
 </html>

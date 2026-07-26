@@ -4,6 +4,177 @@
 function isMobileDevice() {
     return window.matchMedia("(hover: none) and (pointer: coarse)").matches;
 }
+// ==========================================
+// BARRICADE PUZZLE UI METHODS (FIXED)
+// ==========================================
+
+// ==========================================
+// BARRICADE PUZZLE UI METHODS (2D TETRIS UPGRADE)
+// ==========================================
+
+// ==========================================
+// BARRICADE PUZZLE UI METHODS (SINGLE SVG OVERLAY FIX)
+// ==========================================
+
+function showBarricadePuzzle(node, onWin, onLose) {
+    document.getElementById('choices-container').innerHTML = '';
+    document.getElementById('interactive-grid-container').classList.add('hidden');
+    document.getElementById('barricade-interactive-layer').classList.remove('hidden');
+    document.getElementById('barricade-tray-container').classList.remove('hidden');
+
+    const grid = document.getElementById('barricade-grid');
+    const tray = document.getElementById('sandbag-supply-tray');
+    const resetBtn = document.getElementById('btn-barricade-reset');
+
+    let selectedBag = null;
+    let placedCount = 0;
+    const totalBags = node.availablePieces.length;
+    const cols = node.gridCols || 3;
+    const rows = node.gridRows || 3;
+    const totalCells = cols * rows;
+    
+    let gridState = new Array(totalCells).fill(null);
+    let placedPieces = []; // Tracks placed bags so we only draw 1 image per piece!
+
+    // 1. Render Doorway Grid
+    const renderGrid = () => {
+        grid.innerHTML = '';
+        grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+        grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+        
+        // A. Render background clickable grid cells
+        for (let i = 0; i < totalCells; i++) {
+            const cell = document.createElement('div');
+            cell.className = `barricade-cell ${gridState[i] ? 'filled' : ''}`;
+            
+            // Explicit grid coordinates so overlays never push cells around
+            const r = Math.floor(i / cols) + 1;
+            const c = (i % cols) + 1;
+            cell.style.gridRow = r;
+            cell.style.gridColumn = c;
+            
+            cell.onclick = () => {
+                if (!selectedBag || gridState[i]) return;
+                
+                const row = Math.floor(i / cols);
+                const col = i % cols;
+                
+                let canPlace = true;
+                let outOfBounds = false;
+
+                for (const [rOffset, cOffset] of selectedBag.shape) {
+                    const targetR = row + rOffset;
+                    const targetC = col + cOffset;
+                    
+                    if (targetR < 0 || targetR >= rows || targetC < 0 || targetC >= cols) {
+                        outOfBounds = true;
+                        canPlace = false;
+                        break;
+                    }
+                    
+                    const targetIndex = targetR * cols + targetC;
+                    if (gridState[targetIndex] !== null) {
+                        canPlace = false;
+                        break;
+                    }
+                }
+
+                if (outOfBounds) {
+                    showFeedbackModal("Out of Bounds!", "That shape doesn't fit within the doorway boundaries from this spot!", false);
+                    return;
+                }
+
+                if (canPlace) {
+                    for (const [rOffset, cOffset] of selectedBag.shape) {
+                        const targetIndex = (row + rOffset) * cols + (col + cOffset);
+                        gridState[targetIndex] = selectedBag.id;
+                    }
+                    
+                    // Add to placed pieces list for single-SVG rendering
+                    placedPieces.push({ bag: selectedBag, row: row, col: col });
+                    
+                    const bagEl = document.getElementById(`bag-${selectedBag.id}`);
+                    if (bagEl) bagEl.classList.add('used');
+                    
+                    selectedBag = null;
+                    placedCount++;
+                    renderGrid();
+
+                    if (placedCount === totalBags) {
+                        setTimeout(() => {
+                            hideBarricadePuzzle();
+                            onWin();
+                        }, 500);
+                    }
+                } else {
+                    showFeedbackModal("Blocked!", "Another sandbag is already in the way there.", false);
+                }
+            };
+            grid.appendChild(cell);
+        }
+
+        // B. Render ONE spanning SVG overlay for each placed piece!
+        placedPieces.forEach(item => {
+            let maxR = 0, maxC = 0;
+            item.bag.shape.forEach(([dr, dc]) => {
+                if (dr > maxR) maxR = dr;
+                if (dc > maxC) maxC = dc;
+            });
+            const spanRows = maxR + 1;
+            const spanCols = maxC + 1;
+
+            const pieceEl = document.createElement('div');
+            pieceEl.className = 'placed-piece-overlay';
+            pieceEl.style.gridRow = `${item.row + 1} / span ${spanRows}`;
+            pieceEl.style.gridColumn = `${item.col + 1} / span ${spanCols}`;
+            
+            const imgSrc = item.bag.imagePath || 'assets/images/svgs/sandbag_1.svg';
+            pieceEl.innerHTML = `<img src="${imgSrc}" alt="${item.bag.name}" class="grid-sandbag-svg">`;
+            grid.appendChild(pieceEl);
+        });
+    };
+
+    // 2. Render Supply Tray
+    const renderTray = () => {
+        tray.innerHTML = '';
+        node.availablePieces.forEach(bag => {
+            const bagEl = document.createElement('div');
+            bagEl.id = `bag-${bag.id}`;
+            bagEl.className = 'sandbag-piece';
+            
+            bagEl.innerHTML = `
+                <img src="${bag.imagePath || 'assets/images/svgs/sandbag_1.svg'}" alt="${bag.name}" class="sandbag-svg-icon" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div class="emoji-fallback" style="display:none; font-size:1.5rem;">${bag.icon}</div>
+                <h3>${bag.name}</h3>
+            `;
+            
+            bagEl.onclick = () => {
+                if (bagEl.classList.contains('used')) return;
+                document.querySelectorAll('.sandbag-piece').forEach(el => el.classList.remove('selected'));
+                bagEl.classList.add('selected');
+                selectedBag = bag;
+            };
+            tray.appendChild(bagEl);
+        });
+    };
+
+    resetBtn.onclick = () => {
+        gridState = new Array(totalCells).fill(null);
+        placedPieces = [];
+        selectedBag = null;
+        placedCount = 0;
+        renderGrid();
+        renderTray();
+    };
+
+    renderGrid();
+    renderTray();
+}
+
+function hideBarricadePuzzle() {
+    document.getElementById('barricade-interactive-layer').classList.add('hidden');
+    document.getElementById('barricade-tray-container').classList.add('hidden');
+}
 
 function lockLandscape() {
 
@@ -192,7 +363,10 @@ function updateUI() {
             });
             return;
         }
-
+        if (currentNode.type === "barricade_puzzle") {
+            startBarricadeChallenge(currentNode);
+            return;
+        }
         if (currentNode.type === "minigame") {
             if (gameState.currentId === "hazard_game") {
                 hazardLayer.classList.remove("hidden");
@@ -571,6 +745,30 @@ function positionStoryContainer() {
     const storyEl = document.getElementById("story-container");
     const actionEl = document.getElementById("action-panel");
     const isHazardScene = gameState.currentId === "hazard_game";
+    const isBarracadeScene = gameState.currentId === "basement_barricade_game";
+
+    if (isBarracadeScene) {
+        storyEl.style.bottom = "";
+        console.log("HI this is barracade")
+        storyEl.classList.add("story-top-mode");
+   
+        let timeLeft = 3;
+
+        const timer = setInterval(() => {
+        timeLeft--;
+        if (timeLeft <= 0) {
+            storyEl.classList.add("action-panel--hidden");
+            clearInterval(timer)
+        } }, 1000); 
+
+    } else {
+        storyEl.classList.remove("action-panel--hidden");
+        storyEl.classList.remove("story-top-mode");
+        storyEl.style.top = "";
+        const actionHeight = actionEl.offsetHeight;
+        const spacing = window.innerWidth <= 768 ? 4 : 12;
+        storyEl.style.bottom = (actionHeight + spacing) + "px";
+    }
 
     if (isHazardScene) {
         // Task 2: hide action panel, push story to top
@@ -771,6 +969,7 @@ updateUI = function() {
 
     positionStoryContainer();
 };
+
 
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("btn-menu-play").onclick = () => {

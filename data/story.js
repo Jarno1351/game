@@ -93,7 +93,7 @@ const storyData = {
             },
             {
                 text: "📦 Go down to the basement alone to gather loose floor toys.",
-                nextId: "basement_close_call",
+                nextId: "basement_barricade_game",
                 scoreModifier: -10,
                 feedback: "🚨 SAFETY LESSON: During floods, water gathers at the lowest point of a building first. Never enter basements when water levels are climbing outside because you can become trapped instantly!"
             },
@@ -105,12 +105,51 @@ const storyData = {
             }
         ]
     },
-    "basement_close_call": {
-        type: "story",
-        title: "Chapter 2: Moving Upstairs",
-        text: "You step down to check the basement, but notice water already bubbling up through the floor drains! Realizing the danger, you quickly turn around and rush back up to the main level.",
+   // ==========================================
+    // NEW BARRICADE MINIGAME NODES
+    // ==========================================
+    "basement_barricade_game": {
+        type: "barricade_puzzle",
+        title: "Chapter 2: Rising Waters",
         imagePath: "assets/images/flooding_basement.png",
-        nextId: "home_prep_instruction"
+        text: "Water is leaking under the basement door! Fit all four sandbag shapes into the doorway grid before the timer runs out!",
+        timeLimitSeconds: 30,
+        gridCols: 3,
+        gridRows: 3,
+        scoreModifier: 25,
+        nextId: "home_escape_upstairs_success",       // 👈 Replace with your actual survival scene ID
+        failureNextId: "home_basement_flood_fail",  // 👈 Replace with your actual flood failure scene ID
+        availablePieces: [
+            // 3-Cell Corner L-Shape: Top-left [0,0], Top-right [0,1], Bottom-left [1,0]
+            { id: "l_shape", name: "L-Sandbag",      shape: [[0,0], [0,1], [1,0]], icon: "╚",   imagePath: "assets/images/svgs/sandbag_L.svg" },
+            // 3-Cell Heavy Strip (Horizontal 1x3)
+            { id: "heavy1",  name: "Heavy Sandbag",  shape: [[0,0], [0,1], [0,2]], icon: "🟫🟫🟫", imagePath: "assets/images/svgs/sandbag_1x3.svg" },
+            // 2-Cell Medium Strip (Horizontal 1x2)
+            { id: "med1",    name: "Medium Sandbag", shape: [[0,0], [0,1]],        icon: "🟫🟫",   imagePath: "assets/images/svgs/sandbag_1x2.svg" },
+            // 1-Cell Small Block (1x1)
+            { id: "small1",  name: "Small Sandbag",  shape: [[0,0]],               icon: "🟫",     imagePath: "assets/images/svgs/sandbag_1x1.svg" }
+        ]
+    },
+    "home_escape_upstairs_success": {
+        type: "story",
+        title: "Chapter 2: Narrow Escape!",
+        text: "Phew! Your makeshift sandbag barricade held back the pressurized water just long enough for you to sprint back up the stairs. Never go down to the lowest level during a flood alert!",
+        imagePath: "assets/images/safe_home2.png",
+        nextId: "home_prep_instruction" // 👈 Routes back to your existing home preparation loop
+    },
+    "home_basement_flood_fail": {
+        type: "choice",
+        title: "❌ TRAPPED BY THE WATER!",
+        text: "The floodwaters burst through the door before you could seal the gaps! In a real flood, basements can fill with freezing water in seconds.",
+        imagePath: "assets/images/safe_home3.png",
+        choices: [
+            {
+                text: "🔄 Re-try Barricade (Stack Faster!)",
+                nextId: "basement_barricade_game",
+                scoreModifier: 0,
+                feedback: "Focus on placing the larger 3x1 and 2x1 sandbag blocks first to cover the most space quickly!"
+            }
+        ]
     },
     "window_mistake_scene": {
         type: "story",

@@ -468,6 +468,9 @@ display:none;
 #story-text::-webkit-scrollbar {
     display: none;
 }
+#action-panel::-webkit-scrollbar {
+    display: none;
+}
 
 /* FLEXIBLE ADAPTIVE CONTROLS CAPTAIN PANEL DECK */
 #action-panel {
@@ -1428,4 +1431,290 @@ display:none;
     font-weight: bold;
     color: var(--text-primary);
     letter-spacing: 1px;
+}
+
+/* ==========================================
+   BARRICADE PUZZLE MINIGAME STYLES
+   ========================================== */
+
+/* The interactive grid layer that overlays the scene art */
+#barricade-interactive-layer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 85%;
+    max-width: 450px;
+    background: rgba(13, 27, 42, 0.85);
+    border: 3px solid #3b5998;
+    border-radius: 16px;
+    padding: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    z-index: 20;
+    backdrop-filter: blur(4px);
+}
+
+/* The CSS Grid container for the doorway cells */
+#barricade-grid {
+    display: grid;
+    gap: 8px;
+    width: 100%;
+    margin: 0 auto;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px dashed #4a69bd;
+}
+
+/* Individual grid cells in the doorway */
+.barricade-cell {
+    width: 100%;                      /* Fill assigned column width */
+    height: 100%;                     /* Fill assigned row height */
+    aspect-ratio: 1 / 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(1rem, 4cqw, 1.8rem); /* Font scales relative to container width */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    box-sizing: border-box;
+}
+
+.barricade-cell:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #f1c40f;
+    transform: scale(1.03);
+}
+
+/* When a sandbag piece is placed in the cell */
+.barricade-cell.filled {
+    background: linear-gradient(135deg, #8d6e63, #5d4037);
+    border: 2px solid #3e2723;
+    box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.2), 0 2px 5px rgba(0, 0, 0, 0.5);
+    cursor: default;
+    animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* ==========================================
+   SANDBAG SUPPLY TRAY (BOTTOM ACTION PANEL)
+   ========================================== */
+
+#barricade-interactive-layer {
+    position: absolute;
+    top: 45%; 
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 380px;
+    height: auto;                     /* 👈 Let container shrink/grow naturally */
+    max-height: 50vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(13, 27, 42, 0.92);
+    border: 3px solid #3b5998;
+    border-radius: 16px;
+    padding: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+    z-index: 15;
+    backdrop-filter: blur(8px);
+    box-sizing: border-box;
+
+    /* Enable Container Query calculations for child grid */
+    container-type: inline-size;      /* 👈 Add this line */
+}
+
+#barricade-grid {
+    display: grid;
+    gap: 6px;
+    
+    /* Force grid size to scale based on parent width or max viewport height */
+    width: min(100%, 32vh);           /* 👈 Dynamically sizes to container while respecting screen height */
+    height: auto;
+    aspect-ratio: 1 / 1;              /* Keeps grid a perfect square */
+    
+    margin: 0 auto;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 8px;
+    border-radius: 10px;
+    border: 2px dashed #4a69bd;
+    box-sizing: border-box;
+}
+
+/* 3. Bottom Tray Panel - Keeps reset button and sandbag tray visible */
+#barricade-tray-container {
+    width: 100%;
+    padding: 8px 12px;
+    background: rgba(13, 27, 42, 0.95);
+    border-top: 2px solid #2c3e50;
+    border-radius: 12px 12px 0 0;
+    box-sizing: border-box;
+}
+
+/* Top Meta Row (Timer & Reset Button) */
+#barricade-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 6px;
+}
+
+#btn-barricade-reset {
+    z-index: 30;           /* Ensures reset button is always clickable */
+    pointer-events: auto;
+}
+
+/* 4. Horizontal Scroll Tray for Mobile */
+/* style.css */
+
+#sandbag-supply-tray {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 6px;                     /* Slightly tighter gap */
+    justify-content: center;      /* Centers items horizontally */
+    align-items: center;
+    overflow-x: auto;
+    padding: 4px;
+    width: 100%;
+    box-sizing: border-box;
+}
+.sandbag-piece h3 {
+    margin: 0;
+    font-size: 0.65rem !important;/* 👈 Makes text labels smaller */
+    color: #ffffff;
+    font-family: sans-serif;
+    text-align: center;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+/* Individual Sandbag Cards */
+.sandbag-piece {
+    flex: 0 0 auto;
+    background: #1e3799;
+    border: 2px solid #4a69bd;
+    border-radius: 8px;           /* Slightly smaller radius */
+    padding: 3px 6px;             /* 👈 Reduced padding to make cards shorter */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 50px;              /* 👈 Reduced from 65px */
+    max-height: 52px;             /* 👈 Reduced from 70px */
+    user-select: none;
+    box-sizing: border-box;
+}
+
+/* 5. Force Story Container to move up when the barricade layer is visible */
+#barricade-interactive-layer:not(.hidden) ~ #story-container,
+#game-container:has(#barricade-interactive-layer:not(.hidden)) #story-container {
+    top: auto !important;
+    bottom: 160px !important;
+    z-index: 25 !important;
+    max-height: 80px;
+    padding: 8px 14px !important;
+}
+
+#sandbag-supply-tray {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    max-height: 160px;
+    overflow-y: auto;
+    padding: 5px;
+}
+.barricade-cell img.grid-sandbag-svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.6));
+    animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+
+.sandbag-piece div {
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+    pointer-events: none;
+}
+
+.sandbag-piece h3 {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #ffffff;
+    font-family: sans-serif;
+    text-align: center;
+    pointer-events: none;
+}
+
+.sandbag-piece:hover {
+    background: #4a69bd;
+    transform: translateY(-2px);
+}
+
+/* When the player taps a sandbag to select it */
+.sandbag-piece.selected {
+    border-color: #f1c40f;
+    background: #b71540;
+    box-shadow: 0 0 12px rgba(241, 196, 15, 0.8);
+    transform: scale(1.05);
+}
+
+.sandbag-piece div,
+.sandbag-piece svg,
+.sandbag-piece img {
+    max-height: 22px !important;  /* 👈 Shrinks SVG/image graphics inside card */
+    font-size: 1.1rem !important;
+    margin-bottom: 2px;
+    pointer-events: none;
+}
+
+
+.barricade-cell.filled {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    cursor: default;
+}
+
+.placed-piece-overlay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none; /* Mouse clicks pass right through transparent corners to any empty cells below */
+    z-index: 10;
+    animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.placed-piece-overlay img.grid-sandbag-svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.6));
+}
+/* When a sandbag has already been placed on the doorway */
+.sandbag-piece.used {
+    opacity: 0.3;
+    filter: grayscale(100%);
+    pointer-events: none;
+    background: #2c3e50;
+    border-color: #7f8c8d;
+    box-shadow: none;
+}
+
+/* Simple pop animation when placing bags */
+@keyframes popIn {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
 }
