@@ -1,19 +1,15 @@
 const AssetLoader = (() => {
-    // 1. Module-scoped settings (using const, not object labels)
     const maxRetries = 3;
     const retryDelayMs = 1000;
 
-    // 2. Asset storage maps
     const loadedImages = new Map();
     const loadedAudio = new Map();
 
-    // 3. Resilient Image Loader (removed "this.")
     const loadImage = async function(src, retriesLeft = maxRetries) {
         return new Promise((resolve) => {
             const img = new Image();
             
             img.onload = () => {
-                // Save to map so the game can access it later
                 loadedImages.set(src, img);
                 resolve(img);
             };
@@ -32,15 +28,13 @@ const AssetLoader = (() => {
             
             img.src = src;
         });
-    }; // Removed trailing comma
+    };
 
-    // 4. Resilient Audio Loader (removed "this.")
     const loadAudio = async function(src, retriesLeft = maxRetries) {
         return new Promise((resolve) => {
             const audio = new Audio();
             
             audio.oncanplaythrough = () => {
-                // Save to map so the game can access it later
                 loadedAudio.set(src, audio);
                 resolve(audio);
             };
@@ -62,20 +56,41 @@ const AssetLoader = (() => {
         });
     };
 
-    // 5. Collect every story image automatically
+    // Updated to collect story, minigame items, and barricade SVGs
     function collectStoryImages() {
         const images = new Set();
+
+        // A. Story Data Images
         if (typeof storyData !== "undefined") {
             Object.values(storyData).forEach(scene => {
                 if (scene.imagePath) images.add(scene.imagePath);
                 if (scene.image) images.add(scene.image);
                 if (scene.background) images.add(scene.background);
+
+                // Collect sandbag SVGs inside barricade puzzle nodes
+                if (scene.availablePieces && Array.isArray(scene.availablePieces)) {
+                    scene.availablePieces.forEach(piece => {
+                        if (piece.imagePath) images.add(piece.imagePath);
+                    });
+                }
             });
         }
+
+        // B. Minigame Items
+        if (typeof allMiniGameItems !== "undefined") {
+            Object.values(allMiniGameItems).forEach(category => {
+                category.forEach(item => {
+                    if (item.imagePath) images.add(item.imagePath);
+                });
+            });
+        }
+
+        // C. Standalone Default SVGs
+        images.add('assets/images/svgs/sandbag_1.svg');
+
         return [...images];
     }
 
-    // 6. Collect audio from AudioManager manifest
     function collectAudio() {
         const audio = [];
         if (typeof AudioManager !== "undefined" && AudioManager.manifest) {
@@ -92,16 +107,13 @@ const AssetLoader = (() => {
         return audio;
     }
 
-    // 7. Preload All Assets
     async function preloadAll(onProgress) {
-        // Connected the collectors directly instead of empty arrays
         const imageUrls = collectStoryImages(); 
         const audioUrls = collectAudio();
         
         let loadedCount = 0;
         const totalAssets = imageUrls.length + audioUrls.length;
 
-        // Prevent division by zero if no assets exist
         if (totalAssets === 0) {
             if (onProgress) onProgress(100);
             return [];
@@ -133,9 +145,18 @@ const AssetLoader = (() => {
         return allAssets.filter(item => item.asset !== null);
     }
 
+    // Helper to fetch cached image element src
+    function getImageSrc(src) {
+        if (loadedImages.has(src)) {
+            return loadedImages.get(src).src;
+        }
+        return src;
+    }
+
     return {
         preloadAll,
         loadedImages,
-        loadedAudio
+        loadedAudio,
+        getImageSrc
     };
 })();

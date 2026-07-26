@@ -128,7 +128,7 @@ function showBarricadePuzzle(node, onWin, onLose) {
             pieceEl.style.gridRow = `${item.row + 1} / span ${spanRows}`;
             pieceEl.style.gridColumn = `${item.col + 1} / span ${spanCols}`;
             
-            const imgSrc = item.bag.imagePath || 'assets/images/svgs/sandbag_1.svg';
+            const imgSrc = AssetLoader.getImageSrc(item.bag.imagePath || 'assets/images/svgs/sandbag_1.svg');
             pieceEl.innerHTML = `<img src="${imgSrc}" alt="${item.bag.name}" class="grid-sandbag-svg">`;
             grid.appendChild(pieceEl);
         });
@@ -136,14 +136,14 @@ function showBarricadePuzzle(node, onWin, onLose) {
 
     // 2. Render Supply Tray
     const renderTray = () => {
-        tray.innerHTML = '';
+        const trayImgSrc = AssetLoader.getImageSrc(bag.imagePath || 'assets/images/svgs/sandbag_1.svg');
         node.availablePieces.forEach(bag => {
             const bagEl = document.createElement('div');
             bagEl.id = `bag-${bag.id}`;
             bagEl.className = 'sandbag-piece';
             
             bagEl.innerHTML = `
-                <img src="${bag.imagePath || 'assets/images/svgs/sandbag_1.svg'}" alt="${bag.name}" class="sandbag-svg-icon" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <img src="${trayImgSrc}" alt="${bag.name}" class="sandbag-svg-icon" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                 <div class="emoji-fallback" style="display:none; font-size:1.5rem;">${bag.icon}</div>
                 <h3>${bag.name}</h3>
             `;
@@ -282,7 +282,7 @@ function updateUI() {
     const placeholder = document.getElementById("art-placeholder");
 
     if (currentNode.imagePath) {
-        artImage.src = currentNode.imagePath;
+        artImage.src = AssetLoader.getImageSrc(currentNode.imagePath); 
         artImage.classList.remove("hidden");
         if (placeholder) placeholder.classList.add("hidden");
 
@@ -504,7 +504,7 @@ function setupItemsGrid() {
         }
         
         itemDiv.innerHTML = `
-            <img src="${item.imagePath}" onerror="this.style.display='none';" alt="${item.name}">
+            <img src="${AssetLoader.getImageSrc(item.imagePath)}" onerror="this.style.display='none';" alt="${item.name}">
             <div class="emoji-fallback" style="font-size:1.6rem;">${item.icon}</div>
             <h3>${item.name}</h3>
         `;
