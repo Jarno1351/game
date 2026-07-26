@@ -39,8 +39,35 @@ let gameState = {
     madeEvacMistake: false
 };
 
-window.addEventListener("DOMContentLoaded", () => {
-    initGame();
+window.addEventListener("DOMContentLoaded", async () => {
+    const loadingOverlay = document.getElementById("loading-overlay");
+    const progressBar = document.getElementById("loading-progress-bar");
+    const progressText = document.getElementById("loading-progress-text");
+
+    try {
+        // Trigger the AssetLoader and pass a callback to update our new UI
+        await AssetLoader.preloadAll((percentage) => {
+            if (progressBar) progressBar.style.width = `${percentage}%`;
+            if (progressText) progressText.innerText = `${percentage}%`;
+        });
+    } catch (error) {
+        // Graceful error capture just in case the promise chain breaks
+        console.error("Critical error during preloading:", error);
+    } finally {
+        // Enforce a tiny visual delay at 100% so it feels complete before fading
+        setTimeout(() => {
+            if (loadingOverlay) {
+                loadingOverlay.classList.add("hidden-fade");
+                // Wait for the CSS fade transition to finish before initializing the game
+                setTimeout(() => {
+                    loadingOverlay.style.display = "none";
+                    initGame();
+                }, 500); 
+            } else {
+                initGame();
+            }
+        }, 300);
+    }
 });
 
 function initGame(skipToStory = false) {
