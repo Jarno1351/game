@@ -726,6 +726,8 @@ display:none;
 .menu-content-box {
     width: 90%;
     max-width: 550px;
+    max-height: 95dvh;
+    overflow: auto;
     background: rgba(255, 255, 255, 0.98);
     border: 5px solid var(--primary-color);
     border-radius: 25px;
@@ -851,7 +853,6 @@ display:none;
     justify-content: center;
     align-items: center;
     min-height: 160px;
-    margin: 15px 0;
 }
 
 .splash-art-frame {
@@ -887,7 +888,7 @@ display:none;
 
 .game-main-title {
     font-size: clamp(1.8rem, 4vw, 2.6rem);
-    line-height: 1.2;
+    line-height: 0.9;
     color: #1a252f;
     margin: 0 0 10px 0;
     font-weight: 800;
