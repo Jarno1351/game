@@ -577,13 +577,26 @@ function positionStoryContainer() {
         actionEl.classList.add("action-panel--hidden");
         storyEl.classList.add("story-top-mode");
         storyEl.style.bottom = "";
+        if (window.matchMedia("(max-height: 600px)").matches) {
+            let timeLeft = 5;
+
+            const timer = setInterval(() => {
+            timeLeft--;
+            if (timeLeft <= 0) {
+                storyEl.classList.add("action-panel--hidden");
+                console.log("HI")
+                clearInterval(timer)
+            } }, 1000); 
+        }
     } else {
         // Task 1: restore action panel, position story just above it
         actionEl.classList.remove("action-panel--hidden");
+        storyEl.classList.remove("action-panel--hidden");
         storyEl.classList.remove("story-top-mode");
         storyEl.style.top = "";
         const actionHeight = actionEl.offsetHeight;
-        storyEl.style.bottom = (actionHeight + 12) + "px";
+        const spacing = window.innerWidth <= 768 ? 4 : 12;
+        storyEl.style.bottom = (actionHeight + spacing) + "px";
     }
 }
 
