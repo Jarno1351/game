@@ -28,7 +28,7 @@ function showBarricadePuzzle(node, onWin, onLose) {
 
     let selectedBag = null;
     let placedCount = 0;
-    const totalBags = node.availablePieces.length;
+    const totalBags = node.availablePieces ? node.availablePieces.length : 0;
     const cols = node.gridCols || 3;
     const rows = node.gridRows || 3;
     const totalCells = cols * rows;
@@ -136,15 +136,20 @@ function showBarricadePuzzle(node, onWin, onLose) {
 
     // 2. Render Supply Tray
     const renderTray = () => {
-        const trayImgSrc = AssetLoader.getImageSrc(bag.imagePath || 'assets/images/svgs/sandbag_1.svg');
+        tray.innerHTML = '';
+        if (!node.availablePieces) return;
+
         node.availablePieces.forEach(bag => {
+            // ✅ CORRECT: Place 'trayImgSrc' inside the loop
+            const trayImgSrc = AssetLoader.getImageSrc(bag.imagePath || 'assets/images/svgs/sandbag_1.svg');
+
             const bagEl = document.createElement('div');
             bagEl.id = `bag-${bag.id}`;
             bagEl.className = 'sandbag-piece';
             
             bagEl.innerHTML = `
                 <img src="${trayImgSrc}" alt="${bag.name}" class="sandbag-svg-icon" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                <div class="emoji-fallback" style="display:none; font-size:1.5rem;">${bag.icon}</div>
+                <div class="emoji-fallback" style="display:none; font-size:1.5rem;">${bag.icon || '🧱'}</div>
                 <h3>${bag.name}</h3>
             `;
             
